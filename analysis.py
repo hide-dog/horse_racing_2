@@ -13,6 +13,8 @@ import numpy as np
 import glob
 from tqdm import tqdm
 import pickle
+import matplotlib.pyplot as plt
+
 
 # neural_network, random forest
 from sklearn import neural_network
@@ -201,6 +203,8 @@ def main():
         rieki_3renntan  = 0
         rieki_umarenn   = 0
         rieki_3rennpuku = 0
+        rieki_3rennpuku_l = []
+        rieki_3rennpuku_sum = 0
         rieki_hukusyou  = [0, 0, 0]
         rieki_waido     = 0
         ite_all = 0
@@ -282,6 +286,7 @@ def main():
             #end
 
             # 三連複
+            ite = 0
             if (real_rank1 == pred_rank1 or real_rank1 == pred_rank2 or real_rank1 == pred_rank3) and \
                (real_rank2 == pred_rank1 or real_rank2 == pred_rank2 or real_rank2 == pred_rank3) and \
                (real_rank3 == pred_rank1 or real_rank3 == pred_rank2 or real_rank3 == pred_rank3):
@@ -294,7 +299,12 @@ def main():
                     fin_odds = 1.0
                 #end
                 rieki_3rennpuku += 100 * fin_odds
+                ite = 100 * fin_odds
+                print(fin_odds)
             #end
+            rieki_3rennpuku_sum -= 100
+            rieki_3rennpuku_sum += ite
+            rieki_3rennpuku_l.append(rieki_3rennpuku_sum)
 
             # 複勝
             b = [0,0,0]
@@ -392,6 +402,29 @@ def main():
         print(" 回収金：" + str(rieki_3rennpuku))
         print(" 回収率：" + str(rieki_3rennpuku / (ite_all*100)))
         print("----------------------------")
+        
+        num_race_l = np.zeros(len(rieki_3rennpuku_l))
+        for i in range(len(num_race_l)):
+            num_race_l[i] = i
+        #end
+
+        plt.scatter(num_race_l, rieki_3rennpuku_l, s=1, marker="o", c = "b", alpha=1)
+
+        plt.grid()
+        plt.rcParams['axes.axisbelow'] = True
+        # plt.xlim([0, 10422.6])
+        # plt.ylim([-60, 60])
+        plt.xlabel("Number of races", fontsize=14)
+        plt.ylabel("Profit, yen", fontsize=14)
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
+        tn = model_name.replace('_' + year + '.sav',"")
+        tn = tn.replace(dir,"")
+        plt.title(tn, fontsize=14)
+        plt.tight_layout()
+
+        plt.savefig("rieki_sannrennpuku_" + str(m) + ".png", format="png")
+        plt.clf()
     #end
 #end
 
